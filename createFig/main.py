@@ -6,13 +6,19 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sampledata as spl
 import statistics as stat
+import sys
 
 def main():
+    pwd=os.getcwd()
+    inputPath = pwd+'/'+sys.argv[1]
+    outputPath = pwd+'/'+sys.argv[1]+'-out'
+    os.mkdir(outputPath)
     axis=uc.Axis('H','M')
     axis.setUnits('Oe','emu')
-    axis=createCSV(axis)
-    createFigAndArea(axis)
-    createCompFig()
+    
+    axis=createCSV(axis,inputPath,outputPath)
+    createFigAndArea(axis, outputPath,outputPath)
+    createCompFig(outputPath,outputPath)
 
 def makeFigs(df:pd.DataFrame, samplestr:str, outputPath:str):
     print('called\n')
@@ -32,10 +38,9 @@ def makeFigs(df:pd.DataFrame, samplestr:str, outputPath:str):
     print('saved\n')
     plt.close()
 
-def createCSV(axis:uc.Axis):
-    pwd=os.getcwd()
-    inputPath=os.path.relpath(os.path.abspath('input'),pwd)
-    outputPath=os.path.relpath(os.path.abspath('output'),pwd)
+def createCSV(axis:uc.Axis, input_path, output_path):
+    inputPath=input_path
+    outputPath=output_path
     header='Date,H(Oe),M(emu),Angle(degree)'
     width=2
     files = glob.glob(inputPath+'/*.VSM')
@@ -64,12 +69,10 @@ def createCSV(axis:uc.Axis):
         print(f"{cnt} files have finished\n")
     return data.axis
 
-def createFigAndArea(axis:uc.Axis):
-    pwd=os.getcwd()
-    inputPath=os.path.relpath(os.path.abspath('output'),pwd)
-    outputPath=inputPath
-    inFiles = glob.glob(inputPath+'/*-in.csv')
-    outFiles = glob.glob(inputPath+'/*-out.csv')
+def createFigAndArea(axis:uc.Axis, input_path:str, output_path:str):
+    outputPath=output_path
+    inFiles = glob.glob(output_path+'/*-in.csv')
+    outFiles = glob.glob(output_path+'/*-out.csv')
     area_dict={}
     for inF in inFiles:
         if inF.replace('-in','-out') in outFiles:
@@ -120,10 +123,9 @@ def createMsThickFig(df:pd.DataFrame, name:str, outputPath:str):
     plt.savefig(outputPath+f'/thickness-Ms-{name}.png')
     plt.close()
 
-def createCompFig():
-    pwd=os.getcwd()
-    inputPath=os.path.relpath(os.path.abspath('output'),pwd)
-    outputPath=inputPath
+def createCompFig(input_path:str,output_path:str):
+    inputPath=input_path
+    outputPath=output_path
     df = pd.read_csv(inputPath+'/Keff_area.csv', index_col=0)
     createKeffThickFig(df, 'a', outputPath)
     createMsThickFig(df, 'a', outputPath)

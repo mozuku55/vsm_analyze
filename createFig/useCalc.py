@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import sampledata as spl
+
 class Axis:
     def __init__(self,x:str,y:str):
         self.x=x
